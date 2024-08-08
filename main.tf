@@ -2,14 +2,28 @@ provider "aws" {
   region = "us-east-2"
 }
 
-variable "region" {
-  description = "The AWS region to deploy the API Gateway"
-  type        = string
-  default     = "us-east-2"
+variable "aws_region" {
+  type = string
+}
+
+variable "aws_account_id" {
+  type = string
+}
+
+variable "repository_name" {
+  type = string
+}
+
+variable "image_tag" {
+  type = string
+}
+
+locals {
+  image_uri = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.repository_name}:${var.image_tag}"
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "lambda_basic_execution_v2"
+  name = "titinic_lambda_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -62,26 +76,26 @@ resource "aws_iam_role_policy" "ecr_access" {
 }
 
 resource "aws_lambda_function" "api_test" {
-  function_name = "api_test_function_v2"
+  function_name = "titanic_lambda"
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
-  image_uri     = "021891592095.dkr.ecr.us-east-2.amazonaws.com/desafio:teste_v6"
+  image_uri     = local.image_uri
 }
 
 resource "aws_api_gateway_rest_api" "api" {
-  name        = "desafio"
-  description = "API para teste v2"
+  name        = "titanic_api"
+  description = "API para sobreviventes do titanic"
 }
 
-resource "aws_api_gateway_resource" "teste_resource" {
+resource "aws_api_gateway_resource" "api_gateway_resource_sobreviventes" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-  path_part   = "teste"
+  path_part   = "sobreviventes"
 }
 
 resource "aws_api_gateway_method" "get_teste" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.teste_resource.id
+  resource_id   = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method   = "GET"
   authorization = "NONE"
   request_parameters = {
@@ -91,14 +105,14 @@ resource "aws_api_gateway_method" "get_teste" {
 
 resource "aws_api_gateway_method" "post_teste" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.teste_resource.id
+  resource_id   = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method   = "POST"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_method" "delete_teste" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.teste_resource.id
+  resource_id   = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method   = "DELETE"
   authorization = "NONE"
   request_parameters = {
@@ -108,7 +122,7 @@ resource "aws_api_gateway_method" "delete_teste" {
 
 resource "aws_api_gateway_integration" "get_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.teste_resource.id
+  resource_id             = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method             = aws_api_gateway_method.get_teste.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -121,7 +135,7 @@ resource "aws_api_gateway_integration" "get_lambda_integration" {
 
 resource "aws_api_gateway_integration" "post_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.teste_resource.id
+  resource_id             = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method             = aws_api_gateway_method.post_teste.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -130,7 +144,7 @@ resource "aws_api_gateway_integration" "post_lambda_integration" {
 
 resource "aws_api_gateway_integration" "delete_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.teste_resource.id
+  resource_id             = aws_api_gateway_resource.api_gateway_resource_sobreviventes.id
   http_method             = aws_api_gateway_method.delete_teste.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -146,7 +160,7 @@ resource "aws_lambda_permission" "get_api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api_test.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/GET/teste"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/GET/sobreviventes"
 }
 
 resource "aws_lambda_permission" "post_api_gateway" {
@@ -154,7 +168,7 @@ resource "aws_lambda_permission" "post_api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api_test.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/teste"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/sobreviventes"
 }
 
 resource "aws_lambda_permission" "delete_api_gateway" {
@@ -162,7 +176,7 @@ resource "aws_lambda_permission" "delete_api_gateway" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.api_test.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/DELETE/teste"
+  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/DELETE/sobreviventes"
 }
 
 resource "aws_api_gateway_deployment" "api_deployment" {
@@ -187,5 +201,5 @@ resource "aws_api_gateway_stage" "prod" {
 }
 
 output "api_url" {
-  value = "https://${aws_api_gateway_rest_api.api.id}.execute-api.${var.region}.amazonaws.com/${aws_api_gateway_stage.prod.stage_name}/teste"
+  value = "https://${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com/${aws_api_gateway_stage.prod.stage_name}/sobreviventes"
 }

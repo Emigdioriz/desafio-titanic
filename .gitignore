@@ -19,3 +19,4 @@ terraform.rc
 
 # Arquivos de configuração locais
 .terraform.lock.hcl
+build_terraform.sh
