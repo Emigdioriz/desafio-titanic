@@ -44,6 +44,7 @@ export TF_VAR_repository_name=$REPOSITORY_NAME
 export TF_VAR_image_tag=$IMAGE_TAG
 export TF_VAR_aws_region=$AWS_REGION
 
+cd infra/
 echo "Iniciando terraform"
 terraform init
 terraform apply -auto-approve
