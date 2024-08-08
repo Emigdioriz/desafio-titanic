@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Defina variáveis
-REPOSITORY_URI="021891592095.dkr.ecr.us-east-2.amazonaws.com/my_lambda_function_v2"
-IMAGE_TAG="latest3"
+REPOSITORY_URI="021891592095.dkr.ecr.us-east-2.amazonaws.com/desafio"
+IMAGE_TAG="teste_v6"
 DOCKERFILE_PATH="."
 
 # Crie a imagem Docker
-sudo docker build -t minha-lambda-function:latest3 $DOCKERFILE_PATH
+sudo docker build -t minha-lambda-function:$IMAGE_TAG $DOCKERFILE_PATH
 
 # Tag a imagem com o URI do repositório ECR
-sudo docker tag minha-lambda-function:latest3 $REPOSITORY_URI:$IMAGE_TAG
+sudo docker tag minha-lambda-function:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
 
 # Faça login no ECR
 aws ecr get-login-password --region us-east-2 | sudo docker login --username AWS --password-stdin 021891592095.dkr.ecr.us-east-2.amazonaws.com
