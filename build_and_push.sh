@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Defina variáveis
-REPOSITORY_URI="021891592095.dkr.ecr.us-east-2.amazonaws.com/minha-lambda-function"
+REPOSITORY_URI="021891592095.dkr.ecr.us-east-2.amazonaws.com/my_lambda_function_v2"
 IMAGE_TAG="latest3"
 DOCKERFILE_PATH="."
 

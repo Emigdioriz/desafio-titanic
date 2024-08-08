@@ -55,7 +55,7 @@ resource "aws_lambda_function" "api_test" {
   function_name = "api_test_function_v2"
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
-  image_uri     = "021891592095.dkr.ecr.us-east-2.amazonaws.com/minha-lambda-function:latest3"
+  image_uri     = "021891592095.dkr.ecr.us-east-2.amazonaws.com/my_lambda_function_v2:latest3"
 }
 
 resource "aws_api_gateway_rest_api" "api" {

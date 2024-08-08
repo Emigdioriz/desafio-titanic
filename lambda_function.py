@@ -1,32 +1,44 @@
 import logging
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-logger.info("Início de tudo")
-
 import boto3
 import pickle
 import json
 import uuid
 import pandas as pd
 import numpy as np
-logger.info("carregou as libs")
 
-
-s3 = boto3.client('s3')
 # Configurar logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.info("Início de tudo")
+
+logger.info("Carregando as bibliotecas")
+
+# Inicializar o cliente S3
+s3 = boto3.client('s3')
+
+# Carregar o modelo a partir do arquivo incluído na imagem Docker
+logger.info("Carregando o modelo")
+try:
+    with open('model.pkl', 'rb') as model_file:
+        model = pickle.load(model_file)
+    logger.info("Modelo carregado com sucesso")
+except Exception as e:
+    logger.error(f"Erro ao carregar o modelo: {e}")
+    model = None
 
 def lambda_handler(event, context):
     logger.info("Início da execução da função lambda_handler")
+    if model is None:
+        logger.error("Modelo não carregado")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'message': 'Erro ao carregar o modelo'})
+        }
+    
     try:
         http_method = event.get('httpMethod', '')
         logger.info(f"Método HTTP recebido: {http_method}")
 
-        # Carregar o modelo a partir do arquivo incluído na imagem Docker
-        logger.info("Carregando o modelo")
-        with open('model.pkl', 'rb') as model_file:
-            model = pickle.load(model_file)
-        logger.info("Modelo carregado com sucesso")
-        
         if http_method == 'POST':
             body = json.loads(event.get('body', '{}'))
             logger.info(f"Corpo da requisição: {body}")
@@ -38,6 +50,7 @@ def lambda_handler(event, context):
                     'statusCode': 400,
                     'body': json.dumps({'message': 'Array de características não fornecido ou inválido'})
                 }
+            
             # Converter as características para um array NumPy
             logger.info("Convertendo características para array NumPy")
             caracteristics_array = np.array(caracteristics).reshape(1, -1)
@@ -46,7 +59,6 @@ def lambda_handler(event, context):
             logger.info("Fazendo a previsão")
             probability = model.predict_proba(caracteristics_array)
             logger.info(f"Probabilidade calculada: {probability}")
-            
             
             # Retornar a probabilidade da classe positiva (assumindo que a classe positiva é a segunda coluna)
             survival_prob = probability[0][1]
