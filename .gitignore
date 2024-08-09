@@ -10,6 +10,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 .terraform/
+.env
 
 # Diretórios de backup
 **/backup/
@@ -20,3 +21,4 @@ terraform.rc
 # Arquivos de configuração locais
 .terraform.lock.hcl
 build_terraform.sh
+

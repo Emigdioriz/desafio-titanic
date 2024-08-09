@@ -30,7 +30,7 @@ Este projeto implementa uma API para prever a probabilidade de sobrevivência co
     ```sh
     ./build_and_push.sh
     ```
-
+    **Nota:** Após executar o script, aguarde alguns minutos para que a imagem Docker seja construída e enviada para o repositório na nuvem. Esse processo pode levar algum tempo, dependendo da velocidade da sua conexão e do tamanho da imagem Docker. Durante esse período, o Terraform estará configurando a infraestrutura necessária na AWS.
 ## Uso
 
 ### POST Request
