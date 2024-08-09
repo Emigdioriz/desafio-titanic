@@ -5,11 +5,9 @@ info:
   description: API para prever a probabilidade de sobrevivência com base em características fornecidas.
 servers:
   - url: https://api.example.com
-    description: Servidor de produção
-  - url: https://api.staging.example.com
-    description: Servidor de staging
+    description: exemplo simples de url. 
 paths:
-  /survival:
+  /sobreviventes:
     post:
       summary: Prever a probabilidade de sobrevivência
       requestBody:
@@ -24,7 +22,7 @@ paths:
                   items:
                     type: number
                   description: Array de 8 características
-                  example: [1.0, 0.5, 0.3, 0.2, 0.1, 0.4, 0.6, 0.7]
+                  example: [70, 1, 1, 30.25, 0, 0, 1, 0] 
       responses:
         '200':
           description: Probabilidade de sobrevivência calculada com sucesso
@@ -144,7 +142,7 @@ components:
       items:
         type: number
       description: Array de 8 características
-      example: [1.0, 0.5, 0.3, 0.2, 0.1, 0.4, 0.6, 0.7]
+      example: [70, 1, 1, 30.25, 0, 0, 1, 0]
     User:
       type: object
       properties:
